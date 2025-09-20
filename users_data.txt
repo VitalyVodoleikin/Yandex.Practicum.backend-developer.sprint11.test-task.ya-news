@@ -1,0 +1,4 @@
+superuser
+login			SUserAdmin
+E-mail			SUserAdmin@example.com
+password		SUserAdmin098765
