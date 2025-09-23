@@ -18,6 +18,8 @@ class TestRoutes(TestCase):
         # Проверяем, что код ответа равен статусу OK (он же 200).
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-# от ПК исх
+# Исх от ПК
 # Прин на Ноу
 # Исх от Ноу
+# Прин на ПК
+# Исх от ПК
