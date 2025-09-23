@@ -19,3 +19,5 @@ class TestRoutes(TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
 # от ПК исх
+# Прин на Ноу
+# Исх от Ноу
