@@ -14,11 +14,13 @@
 #         cls.news = News.objects.create(title='Заголовок', text='Текст')
 
 #     def test_home_page(self):
+#         """Тест доступности главной страницы проекта."""
 #         url = reverse('news:home')
 #         response = self.client.get(url)
 #         self.assertEqual(response.status_code, HTTPStatus.OK)
 
 #     def test_detail_page(self):
+#         """Доступность отдельной страницы новости."""
 #         url = reverse('news:detail', args=(self.news.id,))
 #         response = self.client.get(url)
 #         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -45,9 +47,10 @@
 #         cls.news = News.objects.create(title='Заголовок', text='Текст')
 
 #     def test_pages_availability(self):
+#         """Тесты доступности страниц проекта."""
 #         urls = (
-#             ('news:home', None),
-#             ('news:detail', (self.news.id,)),
+#             ('news:home', None),  # Тест доступности главной страницы проекта.
+#             ('news:detail', (self.news.id,)),  # Доступность отдельной страницы новости.
 #             ('users:login', None),
 #             ('users:signup', None),
 #         )
@@ -92,9 +95,10 @@
 #         )
 
 #     def test_availability_for_comment_edit_and_delete(self):
+#         # При обращении к страницам редактирования и удаления комментария
 #         users_statuses = (
-#             (self.author, HTTPStatus.OK),
-#             (self.reader, HTTPStatus.NOT_FOUND),
+#             (self.author, HTTPStatus.OK),  # автор комментария должен получить ответ OK,
+#             (self.reader, HTTPStatus.NOT_FOUND),  # читатель должен получить ответ NOT_FOUND.
 #         )
 #         for user, status in users_statuses:
 #             # Логиним пользователя в клиенте:
@@ -142,9 +146,10 @@ class TestRoutes(TestCase):
         )
 
     def test_availability_for_comment_edit_and_delete(self):
+        # При обращении к страницам редактирования и удаления комментария
         users_statuses = (
-            (self.author, HTTPStatus.OK),
-            (self.reader, HTTPStatus.NOT_FOUND),
+            (self.author, HTTPStatus.OK),  # автор комментария должен получить ответ OK,
+            (self.reader, HTTPStatus.NOT_FOUND),  # читатель должен получить ответ NOT_FOUND.
         )
         for user, status in users_statuses:
             # Логиним пользователя в клиенте:
