@@ -1,6 +1,8 @@
 import datetime
+from time import timezone
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 import pytest
 
 from news.models import Comment, News
@@ -56,9 +58,9 @@ def comment(news, author):
 
 
 @pytest.fixture
-def news_list():
+def news_list(db):
     """Список новостей на 1 больше NEWS_COUNT_ON_HOME_PAGE."""
-    today = datetime.today()
+    today = datetime.date.today()
     for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
         News.objects.create(
             title=f'Новость {index}',
@@ -70,7 +72,7 @@ def news_list():
 @pytest.fixture
 def comments_list(author, news):
     """Список комментариев."""
-    now = datetime.timezone.now()
+    now = timezone.now()
     for index in range(10):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Tекст {index}',
