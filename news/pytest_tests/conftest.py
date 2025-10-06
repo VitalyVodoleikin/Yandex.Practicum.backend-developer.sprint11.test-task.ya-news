@@ -1,78 +1,115 @@
-# Для тестирования понадобятся фикстуры, которые возвращают:
-# объекты двух пользователей — автора заметки и обычного пользователя,
-# два клиента, авторизованных для обычного пользователя и автора,
-# объект заметки.
-# ----------
-
-
-
-
-
-# conftest.py
+import datetime
+from django.test import Client
+from django.urls import reverse
 import pytest
 
-# Импортируем класс клиента.
-from django.test.client import Client
-
-# Импортируем модель заметки, чтобы создать экземпляр.
-from news.models import News
+from news.models import Comment, News
+from yanews import settings
 
 
 @pytest.fixture
-# Используем встроенную фикстуру для модели пользователей django_user_model.
 def author(django_user_model):
+    """Создаёт пользователя-автора."""
     return django_user_model.objects.create(username='Автор')
 
 
 @pytest.fixture
 def not_author(django_user_model):
+    """Создаёт пользователя, не-автора."""
     return django_user_model.objects.create(username='Не автор')
 
 
 @pytest.fixture
-def author_client(author):  # Вызываем фикстуру автора.
-    # Создаём новый экземпляр клиента, чтобы не менять глобальный.
+def author_client(author):
+    """Логинит автора и возвращает клиент."""
     client = Client()
-    client.force_login(author)  # Логиним автора в клиенте.
+    client.force_login(author)
     return client
 
 
 @pytest.fixture
 def not_author_client(not_author):
+    """Логинит не-автора и возвращает клиент."""
     client = Client()
-    client.force_login(not_author)  # Логиним обычного пользователя в клиенте.
+    client.force_login(not_author)
     return client
 
 
 @pytest.fixture
-def note(author):
-    note = News.objects.create(  # Создаём объект заметки.
+def news():
+    """Создаёт новость."""
+    return News.objects.create(
         title='Заголовок',
-        text='Текст заметки',
+        text='Текст'
     )
-    return note
 
 
 @pytest.fixture
-# Фикстура запрашивает другую фикстуру создания заметки.
-def slug_for_args(note):  
-    # И возвращает кортеж, который содержит slug заметки.
-    # На то, что это кортеж, указывает запятая в конце выражения.
-    return (note.slug,)
+def comment(news, author):
+    """Создаёт комментарий к новости от автора."""
+    comment = Comment.objects.create(
+        news=news,
+        text='Текст комментария',
+        author=author,
+    )
+    return comment
 
 
-
-
-
-# Тестирование логики приложения
-# ---------->
-
-# Добавляем фикстуру form_data
 @pytest.fixture
-def form_data():
-    return {
-        'title': 'Новый заголовок',
-        'text': 'Новый текст',
-    } 
+def news_list():
+    """Список новостей на 1 больше NEWS_COUNT_ON_HOME_PAGE."""
+    today = datetime.today()
+    for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
+        News.objects.create(
+            title=f'Новость {index}',
+            text='Просто текст.',
+            date=today - datetime.timedelta(days=index)
+        )
 
-# <----------
+
+@pytest.fixture
+def comments_list(author, news):
+    """Список комментариев."""
+    now = datetime.timezone.now()
+    for index in range(10):
+        comment = Comment.objects.create(
+            news=news, author=author, text=f'Tекст {index}',
+        )
+        comment.created = now + datetime.timedelta(days=index)
+        comment.save()
+
+
+@pytest.fixture
+def home_url():
+    """Возвращает URL главной страницы."""
+    return reverse('news:home')
+
+
+@pytest.fixture
+def detail_url(news):
+    """Возвращает URL детальной страницы новости."""
+    return reverse('news:detail', args=(news.id,))
+
+
+@pytest.fixture
+def edit_url(comment):
+    """Возвращает URL редактирования комментария."""
+    return reverse('news:edit', args=(comment.id,))
+
+
+@pytest.fixture
+def delete_url(comment):
+    """Возвращает URL удаления комментария."""
+    return reverse('news:delete', args=(comment.id,))
+
+
+@pytest.fixture
+def login_url():
+    """Возвращает URL страницы входа."""
+    return reverse('users:login')
+
+
+@pytest.fixture
+def signup_url():
+    """Возвращает URL страницы регистрации."""
+    return reverse('users:signup')
